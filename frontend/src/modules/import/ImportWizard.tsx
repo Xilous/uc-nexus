@@ -217,7 +217,8 @@ export default function ImportWizard({ open, onClose }: ImportWizardProps) {
       if (existing) {
         existing.item_quantity += hi.item_quantity;
       } else {
-        const { material_id: _, ...rest } = hi;
+        const { material_id, ...rest } = hi;
+        void material_id;
         map.set(key, { ...rest });
       }
     }
@@ -579,7 +580,7 @@ export default function ImportWizard({ open, onClose }: ImportWizardProps) {
             .filter(Boolean)
         : null,
     };
-  }, [parsed, selectedOpenings, purpose, vendorGroups, vendorPOInfo, selectedVendors, unitCostOverrides, vendorAliases, classifications, shippingPRDrafts, sarRequestNumber]);
+  }, [parsed, selectedOpenings, purpose, aggregatedHardwareItems, vendorGroups, vendorPOInfo, selectedVendors, unitCostOverrides, vendorAliases, classifications, shippingPRDrafts, sarRequestNumber]);
 
   const handleFinalize = useCallback(async () => {
     setConfirmOpen(false);

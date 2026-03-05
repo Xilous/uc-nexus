@@ -1,7 +1,7 @@
 """Make hardware_items.material_id nullable
 
-Revision ID: 012
-Revises: 011
+Revision ID: 014
+Revises: 013
 Create Date: 2026-03-05
 """
 
@@ -9,8 +9,8 @@ import sqlalchemy as sa
 
 from alembic import op
 
-revision = "012"
-down_revision = "011"
+revision = "014"
+down_revision = "013"
 branch_labels = None
 depends_on = None
 
