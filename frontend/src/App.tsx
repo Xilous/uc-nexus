@@ -58,7 +58,7 @@ function ModuleSelector() {
         {MODULE_LINKS.map((mod) => (
           <Grid key={mod.path} size={{ xs: 12, sm: 6, md: 4 }}>
             <Card sx={{ height: '100%', transition: 'box-shadow 0.2s', '&:hover': { boxShadow: 6 } }}>
-              <CardActionArea onClick={() => navigate(mod.path)} sx={{ height: '100%', p: 2 }}>
+              <CardActionArea data-testid={`module-card-${mod.label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`} onClick={() => navigate(mod.path)} sx={{ height: '100%', p: 2 }}>
                 <CardContent sx={{ textAlign: 'center' }}>
                   <Box sx={{ color: 'primary.main', mb: 1 }}>{mod.icon}</Box>
                   <Typography variant="h6" gutterBottom>

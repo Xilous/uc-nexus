@@ -33,8 +33,8 @@ export default function ConfirmDialog({
         <DialogContentText>{message}</DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onCancel}>{cancelLabel}</Button>
-        <Button onClick={onConfirm} variant="contained" autoFocus>
+        <Button data-testid="confirm-dialog-cancel" onClick={onCancel}>{cancelLabel}</Button>
+        <Button data-testid="confirm-dialog-confirm" onClick={onConfirm} variant="contained" autoFocus>
           {confirmLabel}
         </Button>
       </DialogActions>

@@ -104,6 +104,7 @@ export default function AppLayout() {
           <FormControl size="small" sx={{ minWidth: 200, mr: 2 }}>
             <InputLabel sx={{ color: 'inherit' }}>Project</InputLabel>
             <Select
+              data-testid="project-selector"
               value={project?.id ?? ''}
               onChange={handleProjectChange}
               label="Project"
@@ -115,7 +116,7 @@ export default function AppLayout() {
               }}
             >
               {projects.map((p) => (
-                <MenuItem key={p.id} value={p.id}>
+                <MenuItem key={p.id} value={p.id} data-testid={`project-option-${p.id}`}>
                   {p.description || p.projectId}
                 </MenuItem>
               ))}
@@ -123,6 +124,7 @@ export default function AppLayout() {
           </FormControl>
 
           <Button
+            data-testid="reset-data-button"
             variant="outlined"
             color="inherit"
             size="small"
@@ -156,6 +158,7 @@ export default function AppLayout() {
           </IconButton>
 
           <Button
+            data-testid="switch-role-button"
             color="inherit"
             startIcon={<SwapHorizIcon />}
             onClick={handleSwitchRole}

@@ -90,7 +90,11 @@ export default function RoleSelectionPage() {
                   </Typography>
                 </CardContent>
                 <CardActions sx={{ justifyContent: 'center', pb: 2 }}>
-                  <Button variant="contained" onClick={() => handleSelect(role)}>
+                  <Button
+                    data-testid={`role-card-${role.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`}
+                    variant="contained"
+                    onClick={() => handleSelect(role)}
+                  >
                     Enter
                   </Button>
                 </CardActions>
