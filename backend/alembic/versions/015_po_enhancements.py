@@ -52,7 +52,7 @@ def upgrade() -> None:
 
     # 6. Create po_document_type enum
     po_doc_type = sa.Enum("PO_DOCUMENT", "VENDOR_ACKNOWLEDGEMENT", "MISCELLANEOUS", name="po_document_type")
-    po_doc_type.create(op.get_bind())
+    po_doc_type.create(op.get_bind(), checkfirst=True)
 
     # 7. Create po_documents table
     op.create_table(
@@ -62,7 +62,11 @@ def upgrade() -> None:
         sa.Column("file_name", sa.String(), nullable=False),
         sa.Column("content_type", sa.String(), nullable=False),
         sa.Column("file_size", sa.Integer(), nullable=False),
-        sa.Column("document_type", po_doc_type, nullable=False),
+        sa.Column(
+            "document_type",
+            sa.Enum("PO_DOCUMENT", "VENDOR_ACKNOWLEDGEMENT", "MISCELLANEOUS", name="po_document_type", create_constraint=False),
+            nullable=False,
+        ),
         sa.Column("s3_key", sa.String(), nullable=False),
         sa.Column("uploaded_at", sa.DateTime(), nullable=False),
     )
@@ -73,7 +77,7 @@ def downgrade() -> None:
     op.drop_index("ix_po_documents_po_id", table_name="po_documents")
     op.drop_table("po_documents")
 
-    sa.Enum(name="po_document_type").drop(op.get_bind())
+    op.execute("DROP TYPE IF EXISTS po_document_type")
 
     op.drop_column("purchase_orders", "vendor_quote_number")
 
