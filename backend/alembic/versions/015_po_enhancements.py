@@ -50,25 +50,26 @@ def upgrade() -> None:
     # 5. Add vendor_quote_number column
     op.add_column("purchase_orders", sa.Column("vendor_quote_number", sa.String(), nullable=True))
 
-    # 6. Create po_document_type enum
-    po_doc_type = sa.Enum("PO_DOCUMENT", "VENDOR_ACKNOWLEDGEMENT", "MISCELLANEOUS", name="po_document_type")
-    po_doc_type.create(op.get_bind(), checkfirst=True)
-
-    # 7. Create po_documents table
-    op.create_table(
-        "po_documents",
-        sa.Column("id", sa.Uuid(), primary_key=True),
-        sa.Column("po_id", sa.Uuid(), sa.ForeignKey("purchase_orders.id"), nullable=False),
-        sa.Column("file_name", sa.String(), nullable=False),
-        sa.Column("content_type", sa.String(), nullable=False),
-        sa.Column("file_size", sa.Integer(), nullable=False),
-        sa.Column(
-            "document_type",
-            sa.Enum("PO_DOCUMENT", "VENDOR_ACKNOWLEDGEMENT", "MISCELLANEOUS", name="po_document_type", create_constraint=False),
-            nullable=False,
-        ),
-        sa.Column("s3_key", sa.String(), nullable=False),
-        sa.Column("uploaded_at", sa.DateTime(), nullable=False),
+    # 6. Create po_document_type enum + po_documents table via raw SQL
+    # Using raw SQL to avoid SQLAlchemy auto-creating the enum type (which conflicts
+    # with the model metadata already registering it during env.py import).
+    op.execute(
+        "DO $$ BEGIN "
+        "  CREATE TYPE po_document_type AS ENUM ('PO_DOCUMENT', 'VENDOR_ACKNOWLEDGEMENT', 'MISCELLANEOUS'); "
+        "EXCEPTION WHEN duplicate_object THEN NULL; "
+        "END $$"
+    )
+    op.execute(
+        "CREATE TABLE po_documents ("
+        "  id UUID PRIMARY KEY, "
+        "  po_id UUID NOT NULL REFERENCES purchase_orders(id), "
+        "  file_name VARCHAR NOT NULL, "
+        "  content_type VARCHAR NOT NULL, "
+        "  file_size INTEGER NOT NULL, "
+        "  document_type po_document_type NOT NULL, "
+        "  s3_key VARCHAR NOT NULL, "
+        "  uploaded_at TIMESTAMP NOT NULL"
+        ")"
     )
     op.create_index("ix_po_documents_po_id", "po_documents", ["po_id"])
 
