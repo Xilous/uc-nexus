@@ -19,8 +19,9 @@ def upgrade() -> None:
     # 1. Make po_number nullable
     op.alter_column("purchase_orders", "po_number", existing_type=sa.String(50), nullable=True)
 
-    # 2. Drop the old global unique index on po_number
+    # 2. Drop the old global unique index and constraint on po_number
     op.drop_index("ix_purchase_orders_po_number", table_name="purchase_orders")
+    op.drop_constraint("purchase_orders_po_number_key", "purchase_orders", type_="unique")
 
     # 3. Add partial unique index: (project_id, po_number) WHERE po_number IS NOT NULL
     op.execute(
@@ -87,7 +88,8 @@ def downgrade() -> None:
 
     op.execute("DROP INDEX IF EXISTS ix_purchase_orders_project_po_number")
 
-    # Re-create the old global unique index — only works if all po_numbers are non-null and unique
+    # Re-create the old global unique index and constraint
     op.execute("UPDATE purchase_orders SET po_number = 'MIGRATED-' || id::text WHERE po_number IS NULL")
     op.alter_column("purchase_orders", "po_number", existing_type=sa.String(50), nullable=False)
+    op.create_unique_constraint("purchase_orders_po_number_key", "purchase_orders", ["po_number"])
     op.create_index("ix_purchase_orders_po_number", "purchase_orders", ["po_number"], unique=True)
