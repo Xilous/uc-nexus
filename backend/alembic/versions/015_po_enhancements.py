@@ -32,10 +32,13 @@ def upgrade() -> None:
     # 4. Add request_number column — backfill existing rows first
     op.add_column("purchase_orders", sa.Column("request_number", sa.String(50), nullable=True))
 
-    # Backfill: use po_number if set, otherwise generate sequential
+    # Backfill: use po_number if set, otherwise generate sequential via CTE
     op.execute(
-        "UPDATE purchase_orders SET request_number = COALESCE(po_number, 'PO-REQ-' || "
-        "LPAD(CAST(ROW_NUMBER() OVER (ORDER BY created_at) AS TEXT), 3, '0'))"
+        "WITH numbered AS ("
+        "  SELECT id, ROW_NUMBER() OVER (ORDER BY created_at) AS rn FROM purchase_orders"
+        ") "
+        "UPDATE purchase_orders SET request_number = COALESCE(po_number, 'PO-REQ-' || LPAD(numbered.rn::text, 3, '0')) "
+        "FROM numbered WHERE purchase_orders.id = numbered.id"
     )
 
     # Now make it NOT NULL
