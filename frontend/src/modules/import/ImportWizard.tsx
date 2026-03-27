@@ -160,13 +160,6 @@ export default function ImportWizard({ open, onClose }: ImportWizardProps) {
     }
   }, [open, steps.length, setTotalSteps, resetWizardContext]);
 
-  // Reset purpose if SAR/SOR selected but project turns out to be new (no existing inventory)
-  useEffect(() => {
-    if (!isReimport && purpose !== null && purpose !== 'po') {
-      setPurpose(null);
-    }
-  }, [isReimport, purpose]);
-
   // ---- Apollo ----
 
   const [checkProject] = useLazyQuery<{
