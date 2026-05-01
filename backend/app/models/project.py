@@ -11,8 +11,9 @@ class Project(Base):
     __tablename__ = "projects"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    project_id: Mapped[str] = mapped_column(String, nullable=False, index=True)
+    project_id: Mapped[str] = mapped_column(String, nullable=False, unique=True, index=True)
     description: Mapped[str | None] = mapped_column(String, nullable=True)
+    client: Mapped[str | None] = mapped_column(String, nullable=True)
     job_site_name: Mapped[str | None] = mapped_column(String, nullable=True)
     address: Mapped[str | None] = mapped_column(String, nullable=True)
     city: Mapped[str | None] = mapped_column(String, nullable=True)
