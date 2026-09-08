@@ -76,12 +76,11 @@ class BuyersCfg(BaseModel):
 
 
 # The GP SQL server CPU percentage at or above which this relay stops running BACKGROUND work
-# (channel.BACKGROUND_OPS - the PO mirror and the job adoption pass). 70 leaves the server most of a
-# third of itself for the people using GP directly: a mirror page is worth nothing next to somebody
-# posting a batch, and by the time SQL Server is over 70% sustained, the work Nexus adds is what turns
-# a slow afternoon into a stalled one. It is not a tuning knob for throughput - lifting it trades
-# GP users' responsiveness for a faster backfill.
-DEFAULT_LOAD_CEILING_PCT = 70
+# (channel.BACKGROUND_OPS - the PO mirror and the job adoption pass). 40 leaves the server most of
+# itself for the people using GP directly: a mirror page is worth nothing next to somebody posting a
+# batch, and past 40% the work Nexus adds is what turns a slow afternoon into a stalled one. It is not
+# a tuning knob for throughput - lifting it trades GP users' responsiveness for a faster backfill.
+DEFAULT_LOAD_CEILING_PCT = 40
 
 # No workstation may set the ceiling below this. A very low value refuses everything forever, which
 # looks exactly like a broken relay and would have somebody "fixing" it by turning the gate off.

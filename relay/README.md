@@ -174,7 +174,7 @@ screen's live setup check all reach the same ops the adoption pass does, and som
 those.
 
 so: on a flagged job the relay takes a fresh (15s-cached) reading before the handler runs, and at or
-above `[gp] load_ceiling_pct` (default 70) answers `server_busy` with
+above `[gp] load_ceiling_pct` (default 40) answers `server_busy` with
 `{sql_cpu_pct, ceiling_pct, retry_after_seconds}` in the error context and runs nothing. an UNFLAGGED
 job is never refused and never pays for a reading, whatever its op. this is the last gate in front of
 GP: it refuses whatever backend asked and whatever that backend's own pacing decided.
