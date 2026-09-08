@@ -265,8 +265,8 @@ def test_every_read_logs_what_it_cost_and_what_is_left(_fresh_policy, caplog):
 
 
 def test_pause_on_server_cpu():
-    assert gp_load.pause_reason(_sample(cpu=70.0)) is not None
-    assert gp_load.pause_reason(_sample(cpu=69.9)) is None
+    assert gp_load.pause_reason(_sample(cpu=40.0)) is not None
+    assert gp_load.pause_reason(_sample(cpu=39.9)) is None
 
 
 def test_pause_on_a_backed_up_runnable_queue():
@@ -284,17 +284,17 @@ def test_a_sample_that_is_not_a_real_reading_never_pauses():
 
 
 def test_resume_needs_both_numbers_back_under_their_thresholds():
-    assert gp_load.may_resume(_sample(cpu=49.0, runnable=0)) is True
-    assert gp_load.may_resume(_sample(cpu=50.0, runnable=0)) is False  # still at the resume line
+    assert gp_load.may_resume(_sample(cpu=39.9, runnable=0)) is True
+    assert gp_load.may_resume(_sample(cpu=40.0, runnable=0)) is False  # still at the resume line
     assert gp_load.may_resume(_sample(cpu=10.0, runnable=8)) is False  # cpu fine, queue is not
 
 
-def test_the_hysteresis_band_is_where_a_paused_policy_stays_paused(_fresh_policy):
-    """Between resume and pause the answer to both questions is no, which is the whole point: a server
-    sitting at 60% neither pauses a running policy nor resumes a paused one."""
-    mid = _sample(cpu=60.0)
-    assert gp_load.pause_reason(mid) is None
-    assert gp_load.may_resume(mid) is False
+def test_the_pause_line_and_the_resume_line_are_the_same_number():
+    """No band: 40% both stops a running policy and refuses to un-pause a paused one. Reads continue
+    only BELOW the line, so a server sitting exactly on it alternates once per probe - accepted."""
+    at_the_line = _sample(cpu=40.0)
+    assert gp_load.pause_reason(at_the_line) is not None
+    assert gp_load.may_resume(at_the_line) is False
 
 
 def test_a_missing_sample_never_resumes():
@@ -316,9 +316,10 @@ def test_a_recovered_sample_resumes_it(_fresh_policy):
     assert _fresh_policy.paused is False
 
 
-def test_a_sample_inside_the_band_does_not_resume(_fresh_policy):
+def test_a_sample_still_at_the_line_does_not_resume(_fresh_policy):
+    """There is no band to sit inside any more: anything at or above 40% leaves the pause on."""
     _fresh_policy.note_sample(_sample(cpu=85.0))
-    _fresh_policy.note_sample(_sample(cpu=60.0))
+    _fresh_policy.note_sample(_sample(cpu=40.0))
     assert _fresh_policy.paused is True
 
 

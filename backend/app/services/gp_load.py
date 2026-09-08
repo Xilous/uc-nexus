@@ -22,8 +22,8 @@ Three mechanisms, in increasing order of bluntness:
      VIEW SERVER STATE - so it charges the bucket an extra batch.
   3. PAUSE. With a real server sample, CPU at or above the pause threshold (or the runnable-task queue
      backed up) stops background reads outright, and a `server_busy` refusal from the relay does the
-     same. Resume needs BOTH numbers back under their (lower) resume thresholds, so a server hovering
-     at the line does not flap in and out of paused.
+     same. Resume needs BOTH numbers back under their resume thresholds, and the CPU pause line and
+     resume line are the same number by decision - reads may continue only below it.
 
 The state lives in one process-wide POLICY shared by the PO mirror and the job sync, because the thing
 being protected is one SQL server and two independent budgets would each politely stay under half of a
@@ -92,10 +92,11 @@ READ_BATCH = env_number("GP_SYNC_READ_BATCH", 25, int, minimum=1, maximum=100)
 # What one list_jobs costs the bucket. A company's job list cannot be paged and its size is not known
 # until the reply lands, so it is charged a flat estimate BEFORE the read rather than not at all.
 JOBS_PER_READ = env_number("GP_SYNC_JOBS_PER_READ", 100, int, minimum=1)
-# Pause/resume band for the live sample. The gap between them is the hysteresis: resuming at the same
-# number that paused would flap once per probe on a server sitting at the line.
-SERVER_CPU_PAUSE_PCT = env_number("GP_SYNC_SERVER_CPU_PAUSE_PCT", 70.0, float, minimum=1.0)
-SERVER_CPU_RESUME_PCT = env_number("GP_SYNC_SERVER_CPU_RESUME_PCT", 50.0, float, minimum=1.0)
+# Pause/resume lines for the live sample. The rule: background reads STOP at 40% or above and may
+# continue only below 40%, so both lines are the same number by decision - there is no hysteresis band.
+# A server sitting exactly at 40 therefore alternates pause and resume once per probe, which is accepted.
+SERVER_CPU_PAUSE_PCT = env_number("GP_SYNC_SERVER_CPU_PAUSE_PCT", 40.0, float, minimum=1.0)
+SERVER_CPU_RESUME_PCT = env_number("GP_SYNC_SERVER_CPU_RESUME_PCT", 40.0, float, minimum=1.0)
 # Runnable tasks is CPU pressure the percentage can miss: a queue of tasks waiting for a scheduler
 # means the server is already behind, whatever the averaged CPU says.
 SERVER_RUNNABLE_PAUSE = env_number("GP_SYNC_SERVER_RUNNABLE_PAUSE", 8, int, minimum=1)
