@@ -457,8 +457,8 @@ def test_the_op_set_the_relay_advertises_carries_it(serving):
 # --- the ceiling ------------------------------------------------------------------------------------
 
 
-def test_the_ceiling_defaults_to_seventy(tmp_path):
-    assert get_settings(str(tmp_path / "none.toml")).gp.load_ceiling_pct == DEFAULT_LOAD_CEILING_PCT == 70
+def test_the_ceiling_defaults_to_forty(tmp_path):
+    assert get_settings(str(tmp_path / "none.toml")).gp.load_ceiling_pct == DEFAULT_LOAD_CEILING_PCT == 40
 
 
 def test_config_sets_the_ceiling(tmp_path):
